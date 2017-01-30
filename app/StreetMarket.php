@@ -6,9 +6,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class StreetMarket extends Model
 {
-    protected $guarded = [
-        'id',
-        'registration_code',
+    protected $fillable = [
+        'street_market_name',
+        'street_name',
+        'street_number',
+        'neighborhood',
+        'landmark',
+        'latitude',
+        'longitude',
+        'district_code',
+        'district_name',
+        'council_code',
+        'council_name',
+        'five_area_region',
+        'eight_area_region',
+        'census_tract',
+        'census_tract_group',
     ];
 
     public function getStreetNumberAttribute()
