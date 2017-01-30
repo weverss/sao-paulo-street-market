@@ -16,21 +16,22 @@ class CreateStreetMarketsTable extends Migration
         Schema::create('street_markets', function (Blueprint $table) {
             $table->increments('id');
             $table->char('registration_code', 6);
-            $table->bigInteger('census_tract');
-            $table->bigInteger('census_tract_group');
             $table->string('street_market_name');
             $table->string('street_name');
             $table->string('street_number');
             $table->string('neighborhood');
-            $table->string('landmark');
+            $table->string('landmark')->nullable();
             $table->integer('latitude');
             $table->integer('longitude');
             $table->tinyInteger('district_code');
             $table->string('district_name');
-            $table->tinyInteger('district council_code');
-            $table->string('district council_name');
+            $table->tinyInteger('council_code');
+            $table->string('council_name');
             $table->string('five_area_region');
             $table->string('eight_area_region');
+            $table->bigInteger('census_tract');
+            $table->bigInteger('census_tract_group');
+            $table->timestamps();
         });
     }
 
