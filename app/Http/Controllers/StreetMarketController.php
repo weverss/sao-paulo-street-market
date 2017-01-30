@@ -26,14 +26,15 @@ class StreetMarketController extends Controller
 
     public function store(StreetMarket $streetMarket, Request $request, Response $response)
     {
-        $streetMarket->fill($request->all());
-        $streetMarket->registration_code = $request->registration_code;
-
-        if($streetMarket->save()) {
-            return $response->make('', $response::HTTP_INTERNAL_SERVER_ERROR);
+        if (!$request->isJson()) {
+            abort($response::HTTP_BAD_REQUEST, 'application/json content required');
         }
 
-        return $response->make('', $response::HTTP_CREATED);
+        $streetMarket->fill($request->all());
+        $streetMarket->registration_code = $request->registration_code;
+        $streetMarket->save();
+
+        return response()->make('', $response::HTTP_CREATED);
     }
 
     public function show(StreetMarket $streetMarket)
@@ -43,13 +44,20 @@ class StreetMarketController extends Controller
 
     public function update(StreetMarket $streetMarket)
     {
-        $streetMarket->fill($request->all());
+        if (!$request->isJson()) {
+            abort($response::HTTP_BAD_REQUEST, 'application/json content required');
+        }
 
+        $streetMarket->fill($request->all());
         $streetMarket->save();
+
+        return response()->make('', $response::HTTP_NO_CONTENT);
     }
 
     public function destroy(StreetMarket $streetMarket)
     {
         $streetMarket->delete();
+
+        return response()->make('', $response::HTTP_NO_CONTENT);
     }
 }

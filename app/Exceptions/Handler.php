@@ -3,6 +3,7 @@
 namespace Tivit\StreetMarket\Exceptions;
 
 use Exception;
+use Illuminate\Http\Response;;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
@@ -44,7 +45,13 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        return parent::render($request, $exception);
+        $status = Response::HTTP_INTERNAL_SERVER_ERROR;
+
+        if (method_exists($exception, 'getStatusCode')) {
+            $status = $exception->getStatusCode();
+        }
+
+        return response()->json(['error' => $exception->getMessage()], $status);
     }
 
     /**
