@@ -2,6 +2,10 @@
 
 namespace Tivit\StreetMarket\Console\Commands;
 
+use DB;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+use Monolog\Formatter\JsonFormatter;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 use Tivit\StreetMarket\StreetMarket;
@@ -18,14 +22,15 @@ class ImportStreetMarkets extends Command
 
     public function handle()
     {
+        $streamHandler = new StreamHandler('php://stdout', Logger::INFO);
+        $streamHandler->setFormatter(new JsonFormatter());
+
+        $this->log = new Logger('street_market_importer');
+        $this->log->pushHandler($streamHandler);
+
         $this->loadFile();
         $this->prepareData();
-
-        $this->info('Importando CSV');
-
         $this->import();
-
-        $this->info('Concluído.');
     }
 
     protected function loadFile()
@@ -46,44 +51,44 @@ class ImportStreetMarkets extends Command
 
     protected function import()
     {
-        $total = count($this->data);
+        DB::table('street_markets')->truncate();
 
         foreach ($this->data as $key => $item) {
             $streetMarket = new StreetMarket();
 
-            $streetMarket->id = $item['ID'];
-            $streetMarket->longitude = $item['LONG'];
-            $streetMarket->latitude = $item['LAT'];
-            $streetMarket->census_tract = $item['SETCENS'];
-            $streetMarket->census_tract_group = $item['AREAP'];
-            $streetMarket->district_code = $item['CODDIST'];
-            $streetMarket->district_name = ucwords(strtolower($item['DISTRITO']));
-            $streetMarket->council_code = $item['CODSUBPREF'];
-            $streetMarket->council_name = ucwords(strtolower($item['SUBPREFE']));
-            $streetMarket->five_area_region = $item['REGIAO5'];
-            $streetMarket->eight_area_region = $item['REGIAO8'];
-            $streetMarket->street_market_name = ucwords(strtolower($item['NOME_FEIRA']));
-            $streetMarket->registration_code = $item['REGISTRO'];
-            $streetMarket->street_name = ucwords(strtolower($item['LOGRADOURO']));
-            $streetMarket->street_number = $item['NUMERO'];
-            $streetMarket->neighborhood = ucwords(strtolower($item['BAIRRO']));
-            $streetMarket->landmark = ucwords(strtolower($item['REFERENCIA']));
-
-            if (is_numeric($item['NUMERO'])) {
-                $streetMarket->street_number = intval($streetMarket->street_number);
-            }
+            $this->populate($streetMarket, $item);
 
             $streetMarket->save();
 
-            $message = sprintf(
-                'Feira %d de %d importada: %s %s',
-                $key + 1,
-                $total,
-                $streetMarket->registration_code,
-                $streetMarket->street_market_name
-            );
+            $this->log->addInfo('street_market_imported', [
+                'registration_code' => $streetMarket->registration_code,
+                'street_market_name' => $streetMarket->street_market_name,
+            ]);
+        }
+    }
 
-            $this->info($message);
+    protected function populate(StreetMarket $streetMarket, array $values)
+    {
+        $streetMarket->id = $values['ID'];
+        $streetMarket->longitude = $values['LONG'];
+        $streetMarket->latitude = $values['LAT'];
+        $streetMarket->census_tract = $values['SETCENS'];
+        $streetMarket->census_tract_group = $values['AREAP'];
+        $streetMarket->district_code = $values['CODDIST'];
+        $streetMarket->district_name = ucwords(strtolower($values['DISTRITO']));
+        $streetMarket->council_code = $values['CODSUBPREF'];
+        $streetMarket->council_name = ucwords(strtolower($values['SUBPREFE']));
+        $streetMarket->five_area_region = $values['REGIAO5'];
+        $streetMarket->eight_area_region = $values['REGIAO8'];
+        $streetMarket->street_market_name = ucwords(strtolower($values['NOME_FEIRA']));
+        $streetMarket->registration_code = $values['REGISTRO'];
+        $streetMarket->street_name = ucwords(strtolower($values['LOGRADOURO']));
+        $streetMarket->street_number = $values['NUMERO'];
+        $streetMarket->neighborhood = ucwords(strtolower($values['BAIRRO']));
+        $streetMarket->landmark = ucwords(strtolower($values['REFERENCIA']));
+
+        if (is_numeric($values['NUMERO'])) {
+            $streetMarket->street_number = intval($streetMarket->street_number);
         }
     }
 }
