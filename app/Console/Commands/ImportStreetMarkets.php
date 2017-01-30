@@ -12,9 +12,9 @@ use Tivit\StreetMarket\StreetMarket;
 
 class ImportStreetMarkets extends Command
 {
-    protected $signature = 'import:street-markets {filepath : Caminho do arquivo CSV}';
+    protected $signature = 'import:street-markets {filepath : Street markets CSV filepath}';
 
-    protected $description = 'Importa lista de feiras de arquivo CSV';
+    protected $description = 'Import street markets from CSV file';
 
     protected $file = [];
 
