@@ -3,21 +3,22 @@ version: '2'
 services:
   mysql:
     image: mysql:5.7
-    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: tivit
       MYSQL_DATABASE: tivit
       MYSQL_USER: tivit
       MYSQL_PASSWORD: tivit
 
-  php:
+  street_market_api:
+    build: ./
+    image: street_market_api
     depends_on:
       - mysql
     image: php:7.1-cli
     ports:
       - "8000:8000"
-    restart: always
     volumes:
      - .:/var/www
     working_dir: /var/www
-    test: ["CMD", "curl", "-f", "http://localhost"]
+    stdin_open: true
+    tty: true
