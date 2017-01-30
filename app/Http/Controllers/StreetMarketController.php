@@ -27,14 +27,17 @@ class StreetMarketController extends Controller
     public function store(StreetMarket $streetMarket, Request $request, Response $response)
     {
         if (!$request->isJson()) {
-            abort($response::HTTP_BAD_REQUEST, 'application/json content required');
+            abort($response::HTTP_BAD_REQUEST, 'Content must be application/json type');
         }
 
         $streetMarket->fill($request->all());
         $streetMarket->registration_code = $request->registration_code;
         $streetMarket->save();
 
-        return response()->make('', $response::HTTP_CREATED);
+        $locationPath = sprintf('%s/%s', $request->path(), $streetMarket->registration_code);
+        $locationUri = url($locationPath);
+
+        return response()->make('', $response::HTTP_CREATED)->header('Location', $locationUri);
     }
 
     public function show(StreetMarket $streetMarket)
@@ -42,19 +45,21 @@ class StreetMarketController extends Controller
         return $streetMarket;
     }
 
-    public function update(StreetMarket $streetMarket)
+    public function update(StreetMarket $streetMarket, Request $request, Response $response)
     {
         if (!$request->isJson()) {
-            abort($response::HTTP_BAD_REQUEST, 'application/json content required');
+            abort($response::HTTP_BAD_REQUEST, 'Content must be application/json type');
         }
 
         $streetMarket->fill($request->all());
         $streetMarket->save();
 
-        return response()->make('', $response::HTTP_NO_CONTENT);
+        $locationUri = url($request->path());
+
+        return response()->make('', $response::HTTP_NO_CONTENT)->header('Location', $locationUri);
     }
 
-    public function destroy(StreetMarket $streetMarket)
+    public function destroy(StreetMarket $streetMarket, Response $response)
     {
         $streetMarket->delete();
 
