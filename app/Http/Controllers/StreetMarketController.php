@@ -8,9 +8,20 @@ use Tivit\StreetMarket\StreetMarket;
 
 class StreetMarketController extends Controller
 {
-    public function index()
+    public function index(StreetMarket $streetMarket, Request $request)
     {
-        return StreetMarket::paginate();
+        $query = $streetMarket::query();
+
+        if ($request->has('q')) {
+            $q = sprintf('%%%s%%', $request->input('q'));
+
+            $query->where('district_name', 'like', $q);
+            $query->orWhere('five_area_region', 'like', $q);
+            $query->orWhere('street_market_name', 'like', $q);
+            $query->orWhere('neighborhood', 'like', $q);
+        }
+
+        return $query->paginate();
     }
 
     public function store(StreetMarket $streetMarket, Request $request, Response $response)
