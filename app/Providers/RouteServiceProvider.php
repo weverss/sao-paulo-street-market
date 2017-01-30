@@ -2,6 +2,7 @@
 
 namespace Tivit\StreetMarket\Providers;
 
+use Illuminate\Http\Response;
 use Tivit\StreetMarket\StreetMarket;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
@@ -27,7 +28,13 @@ class RouteServiceProvider extends ServiceProvider
         parent::boot();
 
         Route::bind('street_market', function ($value) {
-            return StreetMarket::where('registration_code', $value)->firstOrFail();
+            $streetMarket = StreetMarket::where('registration_code', $value)->first();
+
+            if (!$streetMarket) {
+                abort(Response::HTTP_NOT_FOUND, 'Not found');
+            }
+
+            return $streetMarket;
         });
     }
 
