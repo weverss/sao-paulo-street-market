@@ -9,9 +9,10 @@ services:
       MYSQL_USER: tivit
       MYSQL_PASSWORD: tivit
 
-  street_market_api:
+  php:
     build: ./
-    image: street_market_api
+    container_name: street-market-api
+    image: street-market-api
     depends_on:
       - mysql
     image: php:7.1-cli
