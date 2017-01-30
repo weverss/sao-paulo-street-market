@@ -44,7 +44,16 @@ class ImportStreetMarkets extends Command
     {
         $keys = array_shift($this->file);
 
+        $countKeys = count($keys);
+
         foreach ($this->file as $values) {
+            $countValues = count($values);
+
+            if ($countValues < $countKeys) {
+                $extraValues = array_fill(0, $countKeys - $countValues, '');
+                $values = array_merge($values, $extraValues);
+            }
+
             $this->data[] = array_combine($keys, $values);
         }
     }
