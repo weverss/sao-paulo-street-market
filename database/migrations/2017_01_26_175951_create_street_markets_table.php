@@ -15,7 +15,7 @@ class CreateStreetMarketsTable extends Migration
     {
         Schema::create('street_markets', function (Blueprint $table) {
             $table->increments('id');
-            $table->char('registration_code', 6);
+            $table->char('registration_code', 6)->unique();
             $table->string('street_market_name');
             $table->string('street_name');
             $table->string('street_number');
