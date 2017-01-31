@@ -3,9 +3,6 @@
 namespace Tivit\StreetMarket\Console\Commands;
 
 use DB;
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
-use Monolog\Formatter\JsonFormatter;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 use Tivit\StreetMarket\StreetMarket;
@@ -22,12 +19,6 @@ class ImportStreetMarkets extends Command
 
     public function handle()
     {
-        $streamHandler = new StreamHandler('php://stdout', Logger::INFO);
-        $streamHandler->setFormatter(new JsonFormatter());
-
-        $this->log = new Logger('street_market_importer');
-        $this->log->pushHandler($streamHandler);
-
         $this->loadFile();
         $this->prepareData();
         $this->import();
@@ -62,6 +53,10 @@ class ImportStreetMarkets extends Command
     {
         DB::table('street_markets')->truncate();
 
+        DB::beginTransaction();
+
+        $totalStreetMarkets = count($this->data);
+
         foreach ($this->data as $key => $item) {
             $streetMarket = new StreetMarket();
 
@@ -69,11 +64,21 @@ class ImportStreetMarkets extends Command
 
             $streetMarket->save();
 
-            $this->log->addInfo('street_market_imported', [
-                'registration_code' => $streetMarket->registration_code,
-                'street_market_name' => $streetMarket->street_market_name,
-            ]);
+            $totalImported = $key + 1;
+
+            $message = sprintf(
+                '%s: Feira %d de %d importada: %s - %s',
+                date('Y-m-d H:i:s'),
+                $totalImported,
+                $totalStreetMarkets,
+                $streetMarket->registration_code,
+                $streetMarket->street_market_name
+            );
+
+            $this->info($message);
         }
+
+        DB::commit();
     }
 
     protected function populate(StreetMarket $streetMarket, array $values)
