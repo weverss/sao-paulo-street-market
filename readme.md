@@ -3,75 +3,57 @@
 
 ##Docker
 
-Será necessário a instalação do Docker para resolução e dependências. Mais informações em:
-```
-https://docs.docker.com/engine/installation/
-```
+Será necessário a instalação do Docker para resolução e dependências. Mais informações em: [https://docs.docker.com/engine/installation/](https://docs.docker.com/engine/installation/)
 
-Após a instalação completa do Docker, baixe o Docker Compose:
-```
-https://docs.docker.com/compose/install/
-```
+Após a instalação completa do Docker, baixe o Docker Compose: [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/)
 
 ## Clone o repositório e acesse a raiz do projeto:
-```
+```shell
 git clone git@github.com:weverss/sao-paulo-street-market.git
 cd sao-paulo-street-market
 ```
 
 Crie a máquina para executar a aplicação:
-```
+```shell
 docker-compose up -d
 ```
 
 Instale o framework e dependências:
-```
+```shell
 docker run --rm -v $(pwd):/app composer/composer install
 ```
 
 Crie as tabelas no banco de dados
-```
+```shell
 docker exec -it street-market-api /bin/bash -c "php artisan migrate"
 ```
 
 Agora baixe o arquivo CSV com locais de feiras do site da prefeitura de São Paulo:
-```
-http://www.prefeitura.sp.gov.br/cidade/secretarias/upload/chamadas/feiras_livres_1429113213.zip
+```shell
+wget http://www.prefeitura.sp.gov.br/cidade/secretarias/upload/chamadas/feiras_livres_1429113213.zip
 ```
 
 Extraia o arquivo "DEINFO_AB_FEIRASLIVRES_2014.csv" para raiz do projeto e execute o importador:
-```
+```shell
 docker exec -it street-market-api /bin/bash -c "php artisan import:street-markets DEINFO_AB_FEIRASLIVRES_2014.csv"
 ```
 
 ## Testes e Relatórios de Cobertura
 
 Para execução dos testes unitários, execute:
-```
+```shell
 docker exec -it street-market-api /bin/bash -c "vendor/bin/phpunit --coverage-text"
 ```
 
 Para informações de cobertura de testes mais detalhadas, rode o commando acima substituindo "--coverage-text" por "--coverage-html {diretório}" para geração em html. Ex.:
 
-```
+```shell
 docker exec -it street-market-api /bin/bash -c "vendor/bin/phpunit --coverage-html coverage"
 ```
 
 ## Executando a aplicação
-```
+```shell
 docker exec -it street-market-api /bin/bash -c "php artisan serve --host 0.0.0.0"
-```
-
-Agora só acessar: 
-```
-http://localhosts:8000/api/street-markets
-```
-
-## Logs
-
-Os logs de requests podem ser acompanhados em: 
-```
-storage/logs/requests.log
 ```
 
 ## Lista de feiras
@@ -87,7 +69,7 @@ GET http://localhost:8000/api/street-markets/4041-0
 
 Resposta:
 
-```
+```json
 HTTP code: 200
 Content-Type: application/json
 
@@ -123,7 +105,7 @@ POST http://localhost:8000/api/street-markets
 
 Conteúdo da requisição:
 
-```
+```json
 Content-Type: application/json
 
 {
@@ -163,7 +145,7 @@ PUT http://localhost:8000/api/street-markets/9999-9
 
 Conteúdo da requisição:
 
-```
+```json
 Content-Type: application/json
 
 {
@@ -205,4 +187,10 @@ Resposta
 
 ```
 HTTP status: 204 No content
+```
+
+## Logs
+
+```
+storage/logs/requests.log
 ```
